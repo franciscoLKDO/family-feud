@@ -68,14 +68,14 @@ func (m *Model) faceOff(msg tea.KeyMsg) tea.Cmd {
 }
 
 func (m *Model) nextRound() tea.Cmd {
-	if m.roundCount < len(m.Rounds) {
+	if m.roundCount < len(m.Rounds)-1 {
 		m.roundCount++
 		m.Models[rounds] = round.New(m.Rounds[m.roundCount])
 		m.Models[totalScore] = score.New()
 	}
 	m.isFaceOff = true
 	m.currentFamily = family.None
-	return family.OnFamilySelection(m.currentFamily)
+	return tea.Batch(family.OnFamilySelection(m.currentFamily), family.OnFamilyResetFail())
 }
 
 func (m Model) Init() tea.Cmd {
@@ -123,6 +123,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currentFamily = family.Blue
 			}
 			cmds = append(cmds, family.OnFamilySelection(m.currentFamily))
+		}
+		if key.Matches(msg, m.keyMap.ResetFails) {
+			cmds = append(cmds, family.OnFamilyResetFail())
 		}
 	case score.WinRoundScoreMsg:
 		cmds = append(cmds, family.OnFamilyWin(msg.Value))

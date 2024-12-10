@@ -61,6 +61,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case FamilyName:
 		m.isCurrent = (msg == m.Id)
+	case resetFail:
+		m.failcount = 0
 	}
 	return m, cmd
 }

@@ -73,6 +73,7 @@ These commands help the game master (GM) to control various aspects of the game 
 | **Win Round**       | `W`                | Declares the current round's winner, allocating points accordingly.|
 | **Correct Answer**  | `1-8`              | Marks a player’s response as correct and awards points.            |
 | **Incorrect Answer**| `X` or `0`         | Marks a player’s response as incorrect, no points awarded.         |
+| **Reset Fails**     | `Q`                | Reset Fails count                                                  |
 | **Next Round**      | `N`                | Moves on to the next round in the game.                            |
 | **Reset Face-Off**  | `F`                | Resets the face-off for a new question.                            |
 | **Quit Game**       | `Ctrl + C`         | Ends the game and exits the application.                           |

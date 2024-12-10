@@ -21,3 +21,11 @@ func OnFamilySelection(id FamilyName) tea.Cmd {
 		return id
 	}
 }
+
+type resetFail struct{}
+
+func OnFamilyResetFail() tea.Cmd {
+	return func() tea.Msg {
+		return resetFail{}
+	}
+}
