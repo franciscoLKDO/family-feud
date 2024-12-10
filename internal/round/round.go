@@ -1,4 +1,4 @@
-package table
+package round
 
 import (
 	"math"
@@ -29,9 +29,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.Width = msg.Width / 2
-		m.Height = msg.Height / 2
 	case Choice:
 		i := int(msg)
 		if i <= 0 {
@@ -72,7 +69,7 @@ func (m Model) View() string {
 	right := lipgloss.Place(lipgloss.Width(l.String()), lipgloss.Height(l.String()), lipgloss.Left, lipgloss.Top, r.String(), lipgloss.WithWhitespaceBackground(style.RootStyle.GetBackground()))
 	body := lipgloss.JoinHorizontal(lipgloss.Top, l.String(), right)
 
-	table := style.RootStyle.Width(m.Width).Height(m.Height).Border(lipgloss.DoubleBorder()).Align(lipgloss.Center).Padding(0, 1)
+	table := style.RootStyle.Width(m.Width).Height(m.Height).Border(lipgloss.DoubleBorder()).Align(lipgloss.Center).Padding(2, 1)
 	s.WriteString(table.Render(body))
 	return s.String()
 }
@@ -83,6 +80,8 @@ func New(cfg Config) tea.Model {
 		boxes = append(boxes, newBox(answer, i))
 	}
 	return Model{
-		boxes: boxes,
+		boxes:  boxes,
+		Height: 15,
+		Width:  125,
 	}
 }

@@ -48,9 +48,6 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.Width = msg.Width
-		m.Height = msg.Height
 	case winValue:
 		if !m.isCurrent {
 			return m, cmd
@@ -70,13 +67,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	var s strings.Builder
-	sty := style.RootStyle.Height(m.Height / 2)
+	sty := style.RootStyle.Height(m.Height)
 	if m.isCurrent {
 		sty = sty.Background(m.color).BorderBackground(style.DarkGray).MarginBackground(style.DarkGray)
 	}
 
-	score := style.RootStyle.Height(m.Height/6).Width(m.Width/10).Border(lipgloss.DoubleBorder()).Align(lipgloss.Center).Padding(0, 1).Render(fmt.Sprint(m.score))
-	fails := style.RootStyle.Height(m.Height/6).Width(m.Width/10).Border(lipgloss.DoubleBorder()).Align(lipgloss.Center).Padding(0, 1).Render(strings.Repeat(" X ", m.failcount) + strings.Repeat("   ", m.maxFails-m.failcount))
+	score := style.RootStyle.Height(m.Height).Width(m.Width).Border(lipgloss.DoubleBorder()).Align(lipgloss.Center).Padding(0, 1).Render(fmt.Sprint(m.score))
+	fails := style.RootStyle.Height(m.Height).Width(m.Width).Border(lipgloss.DoubleBorder()).Align(lipgloss.Center).Padding(0, 1).Render(strings.Repeat(" X ", m.failcount) + strings.Repeat("   ", m.maxFails-m.failcount))
 
 	sc := lipgloss.Place(lipgloss.Width(fails), lipgloss.Height(score), lipgloss.Center, lipgloss.Center, score, lipgloss.WithWhitespaceBackground(sty.GetBackground()))
 	body := lipgloss.JoinVertical(lipgloss.Center, m.Name, fails, sc)
@@ -93,6 +90,8 @@ func New(cfg Config, id FamilyName, color lipgloss.Color) tea.Model {
 		score:     0,
 		maxFails:  3,
 		failcount: 0,
+		Height:    5,
+		Width:     20,
 	}
 }
 

@@ -1,4 +1,4 @@
-package table
+package round
 
 import (
 	"fmt"
@@ -9,8 +9,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/franciscolkdo/family-feud/internal/style"
 )
-
-const defaultWidth = 30
 
 type startAnimationMsg struct {
 	Id int // Id is the position on table (1 to 8)
@@ -29,7 +27,6 @@ type Box struct {
 	frames       []string
 	currentFrame int
 	Width        int
-	Height       int
 
 	ticker *time.Ticker
 }
@@ -83,10 +80,6 @@ func (m Box) Init() tea.Cmd {
 func (m Box) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.Width = msg.Width / 5
-		m.Height = msg.Height / 5
-		m = m.setFrames()
 	case startAnimationMsg:
 		if msg.Id == m.Id && m.currentFrame == 0 {
 			cmd = m.nextFrame(m.Id)
@@ -117,7 +110,9 @@ func newBox(cfg BoxConfig, id int) tea.Model {
 		frames:       []string{""},
 		currentFrame: 0,
 		ticker:       time.NewTicker(500 * time.Millisecond),
+		Width:        50,
 	}
+	m = m.setFrames()
 	return m
 }
 

@@ -1,4 +1,4 @@
-package table
+package round
 
 type BoxConfig struct {
 	Points int    `json:"points"`

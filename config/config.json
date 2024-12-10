@@ -1,0 +1,62 @@
+{
+    "blueFamily": {
+        "name": "Blue"
+    },
+    "redFamily": {
+        "name": "Red"
+    },
+    "rounds": [
+        {
+            "answers": [
+                {
+                    "points": 35,
+                    "answer": "your mom"
+                },
+                {
+                    "points": 30,
+                    "answer": "Your dad"
+                },
+                {
+                    "points": 20,
+                    "answer": "Your sister"
+                },
+                {
+                    "points": 10,
+                    "answer": "Your bro"
+                },
+                {
+                    "points": 5,
+                    "answer": "Your step bro"
+                }
+            ]
+        },
+        {
+            "answers": [
+                {
+                    "points": 35,
+                    "answer": "Dolphin"
+                },
+                {
+                    "points": 30,
+                    "answer": "Cat"
+                },
+                {
+                    "points": 15,
+                    "answer": "Dog"
+                },
+                {
+                    "points": 10,
+                    "answer": "Squirrel"
+                },
+                {
+                    "points": 5,
+                    "answer": "Turtle"
+                },
+                {
+                    "points": 5,
+                    "answer": "Your step bro"
+                }
+            ]
+        }
+    ]
+}

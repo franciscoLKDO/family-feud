@@ -8,9 +8,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/franciscolkdo/family-feud/internal/family"
 	"github.com/franciscolkdo/family-feud/internal/keymap"
+	"github.com/franciscolkdo/family-feud/internal/round"
 	"github.com/franciscolkdo/family-feud/internal/score"
 	"github.com/franciscolkdo/family-feud/internal/style"
-	"github.com/franciscolkdo/family-feud/internal/table"
 )
 
 var _ tea.Model = Model{}
@@ -21,7 +21,7 @@ const (
 	blueFamily models = iota
 	redFamily
 	totalScore
-	tablebox
+	rounds
 )
 
 type Phase int
@@ -33,11 +33,14 @@ const (
 )
 
 type Model struct {
-	Models map[models]tea.Model
-	keyMap keymap.KeyMap
+	Rounds     []round.Config
+	roundCount int
+	Models     map[models]tea.Model
+	keyMap     keymap.KeyMap
 
-	Width  int
-	Height int
+	isFaceOff bool
+
+	Width int
 }
 
 func (m Model) isQuitMsg(msg tea.Msg) bool {
@@ -47,6 +50,30 @@ func (m Model) isQuitMsg(msg tea.Msg) bool {
 		}
 	}
 	return false
+}
+
+func (m *Model) faceOff(msg tea.KeyMsg) tea.Cmd {
+	if m.isFaceOff {
+		m.isFaceOff = false
+		if key.Matches(msg, m.keyMap.RedFamily) {
+			return family.OnFamilySelection(family.Red)
+		}
+		if key.Matches(msg, m.keyMap.BlueFamily) {
+			return family.OnFamilySelection(family.Blue)
+		}
+
+	}
+	return nil
+}
+
+func (m *Model) nextRound() tea.Cmd {
+	if m.roundCount < len(m.Rounds) {
+		m.roundCount++
+		m.Models[rounds] = round.New(m.Rounds[m.roundCount])
+		m.Models[totalScore] = score.New()
+	}
+	m.isFaceOff = true
+	return tea.Batch(family.OnFamilySelection(family.None))
 }
 
 func (m Model) Init() tea.Cmd {
@@ -66,27 +93,30 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Width = msg.Width
-		m.Height = msg.Height
 	case tea.KeyMsg:
+		if key.Matches(msg, m.keyMap.ResetFaceOff) {
+			m.isFaceOff = true
+			cmds = append(cmds, family.OnFamilySelection(family.None))
+		}
+		if key.Matches(msg, m.keyMap.BlueFamily) || key.Matches(msg, m.keyMap.RedFamily) {
+			cmds = append(cmds, m.faceOff(msg))
+		}
 		if key.Matches(msg, m.keyMap.GoodChoice) {
-			cmds = append(cmds, table.OnGoodChoice(msg.String()))
+			cmds = append(cmds, round.OnGoodChoice(msg.String()))
 		}
 		if key.Matches(msg, m.keyMap.WrongChoice) {
-			cmds = append(cmds, table.OnWrongChoice())
-		}
-		if key.Matches(msg, m.keyMap.BlueFamily) {
-			cmds = append(cmds, family.OnFamilySelection(family.Blue))
-		}
-		if key.Matches(msg, m.keyMap.RedFamily) {
-			cmds = append(cmds, family.OnFamilySelection(family.Red))
+			cmds = append(cmds, round.OnWrongChoice())
 		}
 		if key.Matches(msg, m.keyMap.WinRound) {
 			cmds = append(cmds, score.OnWinRound())
 		}
+		if key.Matches(msg, m.keyMap.NextRound) {
+			cmds = append(cmds, m.nextRound())
+		}
 	case score.WinRoundScoreMsg:
 		cmds = append(cmds, family.OnFamilyWin(msg.Value))
-	case table.ResultMsg:
-		if msg.Status == table.Success {
+	case round.ResultMsg:
+		if msg.Status == round.Success {
 			cmds = append(cmds, score.OnScore(msg.Points))
 		} else {
 			cmds = append(cmds, family.OnFamilyFail())
@@ -103,9 +133,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var s strings.Builder
 
-	left := lipgloss.Place(lipgloss.Width(m.Models[blueFamily].View()), lipgloss.Height(m.Models[tablebox].View()), lipgloss.Left, lipgloss.Top, m.Models[blueFamily].View(), lipgloss.WithWhitespaceBackground(style.RootStyle.GetBackground()))
-	center := lipgloss.Place(lipgloss.Width(m.Models[tablebox].View()), lipgloss.Height(m.Models[tablebox].View()), lipgloss.Left, lipgloss.Top, m.Models[tablebox].View(), lipgloss.WithWhitespaceBackground(style.RootStyle.GetBackground()))
-	right := lipgloss.Place(lipgloss.Width(m.Models[redFamily].View()), lipgloss.Height(m.Models[tablebox].View()), lipgloss.Left, lipgloss.Top, m.Models[redFamily].View(), lipgloss.WithWhitespaceBackground(style.RootStyle.GetBackground()))
+	left := lipgloss.Place(lipgloss.Width(m.Models[blueFamily].View()), lipgloss.Height(m.Models[rounds].View()), lipgloss.Left, lipgloss.Top, m.Models[blueFamily].View(), lipgloss.WithWhitespaceBackground(style.RootStyle.GetBackground()))
+	center := lipgloss.Place(lipgloss.Width(m.Models[rounds].View()), lipgloss.Height(m.Models[rounds].View()), lipgloss.Left, lipgloss.Top, m.Models[rounds].View(), lipgloss.WithWhitespaceBackground(style.RootStyle.GetBackground()))
+	right := lipgloss.Place(lipgloss.Width(m.Models[redFamily].View()), lipgloss.Height(m.Models[rounds].View()), lipgloss.Left, lipgloss.Top, m.Models[redFamily].View(), lipgloss.WithWhitespaceBackground(style.RootStyle.GetBackground()))
 	body := lipgloss.JoinHorizontal(lipgloss.Top, left, center, right)
 
 	points := lipgloss.Place(lipgloss.Width(body), lipgloss.Height(m.Models[totalScore].View()), lipgloss.Center, lipgloss.Center, m.Models[totalScore].View(), lipgloss.WithWhitespaceBackground(style.RootStyle.GetBackground()))
@@ -119,14 +149,18 @@ func (m Model) center(content string) string {
 }
 
 func New(cfg Config) tea.Model {
-	return Model{
+	m := Model{
+		Rounds:     cfg.Rounds,
+		roundCount: 0,
 		Models: map[models]tea.Model{
 			blueFamily: family.NewBlueFamily(cfg.BlueFamily),
 			redFamily:  family.NewRedFamily(cfg.RedFamily),
 			totalScore: score.New(),
-			tablebox:   table.New(cfg.Table),
 		},
+		isFaceOff: true,
 
 		keyMap: keymap.DefaultKeyMap(),
 	}
+	m.Models[rounds] = round.New(m.Rounds[m.roundCount])
+	return m
 }
