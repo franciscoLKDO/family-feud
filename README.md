@@ -69,6 +69,7 @@ These commands help the game master (GM) to control various aspects of the game 
 |---------------------|--------------------|--------------------------------------------------------------------|
 | **Select Blue Team**| `B`                | Assigns points to the blue family.                                 |
 | **Select Red Team** | `R`                | Assigns points to the red family.                                  |
+| **Switch Team**     | `tab`              | Switch between red and blue teams                                  |
 | **Win Round**       | `W`                | Declares the current round's winner, allocating points accordingly.|
 | **Correct Answer**  | `1-8`              | Marks a player’s response as correct and awards points.            |
 | **Incorrect Answer**| `X` or `0`         | Marks a player’s response as incorrect, no points awarded.         |
@@ -85,5 +86,5 @@ Contributions are welcome! If you'd like to add new features or improve the inte
 ## TODO
 
 - Add testing
-- handle buttons for family faceoff
+- handle buttons/buzzer for family faceoff
 

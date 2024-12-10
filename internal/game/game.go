@@ -38,7 +38,8 @@ type Model struct {
 	Models     map[models]tea.Model
 	keyMap     keymap.KeyMap
 
-	isFaceOff bool
+	isFaceOff     bool
+	currentFamily family.FamilyName
 
 	Width int
 }
@@ -56,12 +57,12 @@ func (m *Model) faceOff(msg tea.KeyMsg) tea.Cmd {
 	if m.isFaceOff {
 		m.isFaceOff = false
 		if key.Matches(msg, m.keyMap.RedFamily) {
-			return family.OnFamilySelection(family.Red)
+			m.currentFamily = family.Red
 		}
 		if key.Matches(msg, m.keyMap.BlueFamily) {
-			return family.OnFamilySelection(family.Blue)
+			m.currentFamily = family.Blue
 		}
-
+		return family.OnFamilySelection(m.currentFamily)
 	}
 	return nil
 }
@@ -73,7 +74,8 @@ func (m *Model) nextRound() tea.Cmd {
 		m.Models[totalScore] = score.New()
 	}
 	m.isFaceOff = true
-	return tea.Batch(family.OnFamilySelection(family.None))
+	m.currentFamily = family.None
+	return family.OnFamilySelection(m.currentFamily)
 }
 
 func (m Model) Init() tea.Cmd {
@@ -96,7 +98,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if key.Matches(msg, m.keyMap.ResetFaceOff) {
 			m.isFaceOff = true
-			cmds = append(cmds, family.OnFamilySelection(family.None))
+			m.currentFamily = family.None
+			cmds = append(cmds, family.OnFamilySelection(m.currentFamily))
 		}
 		if key.Matches(msg, m.keyMap.BlueFamily) || key.Matches(msg, m.keyMap.RedFamily) {
 			cmds = append(cmds, m.faceOff(msg))
@@ -112,6 +115,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if key.Matches(msg, m.keyMap.NextRound) {
 			cmds = append(cmds, m.nextRound())
+		}
+		if key.Matches(msg, m.keyMap.SwitchFamily) {
+			if m.currentFamily == family.Blue {
+				m.currentFamily = family.Red
+			} else {
+				m.currentFamily = family.Blue
+			}
+			cmds = append(cmds, family.OnFamilySelection(m.currentFamily))
 		}
 	case score.WinRoundScoreMsg:
 		cmds = append(cmds, family.OnFamilyWin(msg.Value))

@@ -37,7 +37,7 @@ install-dependencies:
 install-dev: 
 	wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin
 
-install-binary: install
+install-binary: install-dependencies
 	go install
 
 build-image:

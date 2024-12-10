@@ -25,7 +25,7 @@ var startCmd = &cobra.Command{
 			return fmt.Errorf("error starting game: %w", err)
 		}
 		_, err = tea.NewProgram(
-			game.New(cfg), tea.WithMouseCellMotion()).Run()
+			game.New(cfg), tea.WithMouseCellMotion(), tea.WithAltScreen()).Run()
 		if err != nil {
 			return err
 		}

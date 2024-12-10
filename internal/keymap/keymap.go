@@ -12,6 +12,7 @@ type KeyMap struct {
 	WrongChoice  key.Binding
 	NextRound    key.Binding
 	ResetFaceOff key.Binding
+	SwitchFamily key.Binding
 }
 
 // DefaultKeyMap defines the default keybindings.
@@ -25,5 +26,6 @@ func DefaultKeyMap() KeyMap {
 		WrongChoice:  key.NewBinding(key.WithKeys("x", "0"), key.WithHelp("0/x", "Failed choice")),
 		NextRound:    key.NewBinding(key.WithKeys("n"), key.WithHelp("n", "Next round")),
 		ResetFaceOff: key.NewBinding(key.WithKeys("f"), key.WithHelp("n", "FaceOff")),
+		SwitchFamily: key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "switch family")),
 	}
 }
